@@ -1,0 +1,14 @@
+# Set up a development environment using the conda package manager
+name: dependente
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python==3.10
+  - pip
+  - make
+  - pip:
+    - -e .
+    - -r env/requirements-build.txt
+    - -r env/requirements-style.txt
+    - -r env/requirements-test.txt

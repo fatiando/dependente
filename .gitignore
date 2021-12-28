@@ -1,0 +1,10 @@
+*.pyc
+dist/
+build/
+.coverage
+.eggs
+*.egg-info
+**/__pycache__
+**/_version.py
+**/_build
+**/.ipynb_checkpoints
