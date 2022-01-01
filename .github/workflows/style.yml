@@ -1,5 +1,5 @@
 # Linting and style checks with GitHub Actions
-name: checks
+name: check
 
 # Only build PRs and the main branch. Pushes to branches will only be built
 # when a PR is opened.
