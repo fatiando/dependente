@@ -7,8 +7,24 @@ dependencies:
   - python==3.10
   - pip
   - make
+  # Run-time
+  - click>=8.0.0,<9.0.0
+  - rich>=9.6.0,<11.0.0
+  - tomli>=1.0.0,<3.0.0
+  # Building (excluding setuptools)
+  - build
+  # Testing
+  - pytest
+  # Linting and style
+  - black
+  - isort
+  - flake8
+  - flake8-bugbear
+  - flake8-builtins
+  - flake8-functions
+  - flake8-mutable
+  - flake8-rst-docstrings
+  - flake8-simplify
+  - pep8-naming
   - pip:
-    - -e .
-    - -r env/requirements-build.txt
-    - -r env/requirements-style.txt
-    - -r env/requirements-test.txt
+    - flake8-unused-arguments
