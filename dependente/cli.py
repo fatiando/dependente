@@ -40,8 +40,10 @@ def main(source, verbose):
 
     Supported formats:
 
-    - pyproject.toml (only build-system > requires)
-    - setup.cfg (install_requires and options.extras_require)
+    * pyproject.toml (only build-system > requires)
+
+    * setup.cfg (install_requires and options.extras_require)
+
     """
     console = make_console(verbose)
     console_error = make_console(verbose=True)
@@ -52,13 +54,15 @@ def main(source, verbose):
     )
     sources = parse_sources(source)
     parsers = {"setup.cfg": parse_setup_cfg, "pyproject.toml": parse_pyproject_toml}
+    readers = {"setup.cfg": read_setup_cfg, "pyproject.toml": read_pyproject_toml}
     dependencies = []
     for config_file in sources:
         if not sources[config_file]:
             continue
         try:
             console.print(f":mag_right: Parsing {config_file}: ", end="", style=style)
-            dependencies_found = parsers[config_file](sources[config_file])
+            config = readers[config_file]()
+            dependencies_found = parsers[config_file](config, sources[config_file])
             console.print(
                 f"{count(dependencies_found)} dependencies found", style=style
             )
@@ -143,12 +147,32 @@ def parse_sources(source):
     return sources
 
 
-def parse_setup_cfg(sources):
+def read_setup_cfg():
+    """
+    Read the setup.cfg file into a dictionary.
+    """
+    config = configparser.ConfigParser()
+    config.read("setup.cfg")
+    return config
+
+
+def read_pyproject_toml():
+    """
+    Read the pyproject.toml file into a dictionary.
+    """
+    with open("pyproject.toml", "rb") as config_source:
+        config = tomli.load(config_source)
+    return config
+
+
+def parse_setup_cfg(config, sources):
     """
     Parse the sources from setup.cfg.
 
     Parameters
     ----------
+    config : dict
+        The configuration file read using configparser.
     sources : list
         List of section names from the config file.
 
@@ -158,8 +182,6 @@ def parse_setup_cfg(sources):
         List of dependencies read from the config file. Includes some comments.
 
     """
-    config = configparser.ConfigParser()
-    config.read("setup.cfg")
     requirements = []
     for source in sources:
         if source == "install_requires":
@@ -179,12 +201,14 @@ def parse_setup_cfg(sources):
     return requirements
 
 
-def parse_pyproject_toml(sources):
+def parse_pyproject_toml(config, sources):
     """
     Parse the sources from pyproject.toml.
 
     Parameters
     ----------
+    config : dict
+        The configuration file read using tomli.
     sources : list
         List of section names from the config file.
 
@@ -194,8 +218,6 @@ def parse_pyproject_toml(sources):
         List of dependencies read from the config file. Includes some comments.
 
     """
-    with open("pyproject.toml", "rb") as config_source:
-        config = tomli.load(config_source)
     requirements = []
     for source in sources:
         if source == "build-system":
