@@ -1,3 +1,3 @@
-# Build system frontend tools (not including setuptools et al.)
+# Build system frontend tools (not including setuptools et al. which are
+# specified in pyproject.toml)
 build
-twine
