@@ -21,7 +21,10 @@ def pin_to_oldest(requirements):
     oldest : list
         List of requirements pinned to the oldest supported version.
     """
-    oldest = [
-        package.split(",")[0].replace(">=", "==").strip() for package in requirements
-    ]
+    oldest = []
+    for line in requirements:
+        if line.strip().startswith("#"):
+            oldest.append(line)
+        else:
+            oldest.append(line.split(",")[0].replace(">=", "==").strip())
     return oldest
