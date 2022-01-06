@@ -130,3 +130,19 @@ jobs:
         if: matrix.os == 'windows'
         run: dependente --source=install,build
         shell: pwsh
+
+      - name: Run the tests
+        run: make test
+
+      - name: Convert coverage report to XML for codecov
+        run: coverage xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.xml
+          env_vars: OS,PYTHON,DEPENDENCIES
+          # Don't mark the job as failed if the upload fails for some reason.
+          # It does sometimes but shouldn't be the reason for running
+          # everything again unless something else is broken.
+          fail_ci_if_error: false
