@@ -6,12 +6,18 @@ Defines the command line interface.
 
 Uses click to define a CLI around the ``main`` function.
 """
-import configparser
 import sys
 
 import click
 import rich.console
-import tomli
+
+from .parsers import (
+    parse_pyproject_toml,
+    parse_setup_cfg,
+    parse_sources,
+    read_pyproject_toml,
+    read_setup_cfg,
+)
 
 
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
@@ -115,120 +121,3 @@ def make_console(verbose):
         A Console instance.
     """
     return rich.console.Console(stderr=True, quiet=not verbose, highlight=False)
-
-
-def parse_sources(source):
-    """
-    Parse the input string for sources and separate based on config file type.
-
-    Parameters
-    ----------
-    source : str
-        Input source specification.
-
-    Returns
-    -------
-    sources : dict
-        Dictionary of parse sources. Keys are config file names.
-    """
-    sources = {"setup.cfg": [], "pyproject.toml": []}
-    valid_sources = {"install", "extras", "build"}
-    for entry in source.strip().split(","):
-        if entry not in valid_sources:
-            raise ValueError(
-                f"Invalid source '{entry}'. Must be one of {valid_sources}."
-            )
-        elif entry == "install":
-            sources["setup.cfg"].append("install_requires")
-        elif entry == "extras":
-            sources["setup.cfg"].append("options.extras_require")
-        elif entry == "build":
-            sources["pyproject.toml"].append("build-system")
-    return sources
-
-
-def read_setup_cfg():
-    """
-    Read the setup.cfg file into a dictionary.
-    """
-    config = configparser.ConfigParser()
-    config.read("setup.cfg")
-    return config
-
-
-def read_pyproject_toml():
-    """
-    Read the pyproject.toml file into a dictionary.
-    """
-    with open("pyproject.toml", "rb") as config_source:
-        config = tomli.load(config_source)
-    return config
-
-
-def parse_setup_cfg(config, sources):
-    """
-    Parse the sources from setup.cfg.
-
-    Parameters
-    ----------
-    config : dict
-        The configuration file read using configparser.
-    sources : list
-        List of section names from the config file.
-
-    Returns
-    -------
-    dependencies : list
-        List of dependencies read from the config file. Includes some comments.
-
-    """
-    requirements = []
-    for source in sources:
-        if source == "install_requires":
-            if source not in config["options"]:
-                raise ValueError(f"Missing '{source}' field in setup.cfg.")
-            requirements.append("# Install (run-time) dependencies from setup.cfg")
-            for package in config["options"][source].strip().split("\n"):
-                requirements.append(package.strip())
-        elif source == "options.extras_require":
-            if source not in config:
-                raise ValueError(f"Missing '{source}' section in setup.cfg.")
-            requirements.append("# Extra (optional) dependencies from setup.cfg")
-            for section in config[source]:
-                requirements.append(f"#   extra: {section}")
-                for package in config[source][section].strip().split("\n"):
-                    requirements.append(package.strip())
-    return requirements
-
-
-def parse_pyproject_toml(config, sources):
-    """
-    Parse the sources from pyproject.toml.
-
-    Parameters
-    ----------
-    config : dict
-        The configuration file read using tomli.
-    sources : list
-        List of section names from the config file.
-
-    Returns
-    -------
-    dependencies : list
-        List of dependencies read from the config file. Includes some comments.
-
-    """
-    requirements = []
-    for source in sources:
-        if source == "build-system":
-            if source not in config:
-                raise ValueError(f"Missing '{source}' section in pyproject.toml.")
-            requirements.append("# Build dependencies from pyproject.toml")
-            if "requires" not in config[source]:
-                raise ValueError(
-                    f"Missing 'requires' entry from the '{source}' section in "
-                    "pyproject.toml."
-                )
-            for package in config[source]["requires"]:
-                requirements.append(package.strip())
-    return requirements

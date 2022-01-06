@@ -15,6 +15,8 @@ dependencies:
   - build
   # Testing
   - pytest
+  - pytest-cov
+  - coverage
   # Linting and style
   - black
   - isort
