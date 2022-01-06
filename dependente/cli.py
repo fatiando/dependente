@@ -12,8 +12,7 @@ import click
 import rich.console
 
 from .parsers import (
-    parse_pyproject_toml,
-    parse_setup_cfg,
+    parse_requirements,
     parse_sources,
     read_pyproject_toml,
     read_setup_cfg,
@@ -59,7 +58,6 @@ def main(source, verbose):
         style=style,
     )
     sources = parse_sources(source)
-    parsers = {"setup.cfg": parse_setup_cfg, "pyproject.toml": parse_pyproject_toml}
     readers = {"setup.cfg": read_setup_cfg, "pyproject.toml": read_pyproject_toml}
     dependencies = []
     for config_file in sources:
@@ -68,7 +66,7 @@ def main(source, verbose):
         try:
             console.print(f":mag_right: Parsing {config_file}: ", end="", style=style)
             config = readers[config_file]()
-            dependencies_found = parsers[config_file](config, sources[config_file])
+            dependencies_found = parse_requirements(config, sources[config_file])
             console.print(
                 f"{count(dependencies_found)} dependencies found", style=style
             )

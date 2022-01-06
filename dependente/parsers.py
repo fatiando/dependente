@@ -44,43 +44,12 @@ def read_setup_cfg(fname="setup.cfg"):
     """
     config = configparser.ConfigParser()
     config.read(fname)
-    return config
-
-
-def parse_setup_cfg(config, sources):
-    """
-    Parse the sources from setup.cfg.
-
-    Parameters
-    ----------
-    config : dict
-        The configuration file read using configparser.
-    sources : list
-        List of section names from the config file.
-
-    Returns
-    -------
-    dependencies : list
-        List of dependencies read from the config file. Includes some comments.
-
-    """
-    requirements = []
-    for source in sources:
-        if source == "install_requires":
-            if source not in config["options"]:
-                raise ValueError(f"Missing '{source}' field in setup.cfg.")
-            requirements.append("# Install (run-time) dependencies from setup.cfg")
-            for package in config["options"][source].strip().split("\n"):
-                requirements.append(package.strip())
-        elif source == "options.extras_require":
-            if source not in config:
-                raise ValueError(f"Missing '{source}' section in setup.cfg.")
-            requirements.append("# Extra (optional) dependencies from setup.cfg")
-            for section in config[source]:
-                requirements.append(f"#   extra: {section}")
-                for package in config[source][section].strip().split("\n"):
-                    requirements.append(package.strip())
-    return requirements
+    print(fname, config)
+    config_dict = {
+        section: dict((key, value.strip()) for key, value in config.items(section))
+        for section in config.sections()
+    }
+    return config_dict
 
 
 def read_pyproject_toml(fname="pyproject.toml"):
@@ -92,14 +61,14 @@ def read_pyproject_toml(fname="pyproject.toml"):
     return config
 
 
-def parse_pyproject_toml(config, sources):
+def parse_requirements(config, sources):
     """
-    Parse the sources from pyproject.toml.
+    Parse the sources from setup.cfg and pyproject.toml.
 
     Parameters
     ----------
     config : dict
-        The configuration file read using tomli.
+        The configuration file read into a dictionary.
     sources : list
         List of section names from the config file.
 
@@ -110,16 +79,51 @@ def parse_pyproject_toml(config, sources):
 
     """
     requirements = []
+    readers = {
+        "install_requires": get_setup_cfg_install,
+        "options.extras_require": get_setup_cfg_extras,
+        "build-system": get_pyproject_toml_build,
+    }
     for source in sources:
-        if source == "build-system":
-            if source not in config:
-                raise ValueError(f"Missing '{source}' section in pyproject.toml.")
-            requirements.append("# Build dependencies from pyproject.toml")
-            if "requires" not in config[source]:
-                raise ValueError(
-                    f"Missing 'requires' entry from the '{source}' section in "
-                    "pyproject.toml."
-                )
-            for package in config[source]["requires"]:
-                requirements.append(package.strip())
+        requirements.extend(readers[source](config))
+    return requirements
+
+
+def get_setup_cfg_install(config):
+    "Extract the install requirements from the configuration"
+    source = "install_requires"
+    if source not in config["options"]:
+        raise ValueError(f"Missing '{source}' field in setup.cfg.")
+    requirements = ["# Install (run-time) dependencies from setup.cfg"]
+    for package in config["options"][source].strip().split("\n"):
+        requirements.append(package.strip())
+    return requirements
+
+
+def get_setup_cfg_extras(config):
+    "Extract the extra requirements from the configuration"
+    source = "options.extras_require"
+    if source not in config:
+        raise ValueError(f"Missing '{source}' section in setup.cfg.")
+    requirements = ["# Extra (optional) dependencies from setup.cfg"]
+    for section in config[source]:
+        requirements.append(f"#   extra: {section}")
+        for package in config[source][section].strip().split("\n"):
+            requirements.append(package.strip())
+    return requirements
+
+
+def get_pyproject_toml_build(config):
+    "Extract the build requirements from the configuration"
+    source = "build-system"
+    if source not in config:
+        raise ValueError(f"Missing '{source}' section in pyproject.toml.")
+    if "requires" not in config[source]:
+        raise ValueError(
+            f"Missing 'requires' entry from the '{source}' section in "
+            "pyproject.toml."
+        )
+    requirements = ["# Build dependencies from pyproject.toml"]
+    for package in config[source]["requires"]:
+        requirements.append(package.strip())
     return requirements
