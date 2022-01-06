@@ -44,7 +44,6 @@ def read_setup_cfg(fname="setup.cfg"):
     """
     config = configparser.ConfigParser()
     config.read(fname)
-    print(fname, config)
     config_dict = {
         section: dict((key, value.strip()) for key, value in config.items(section))
         for section in config.sections()
@@ -78,12 +77,12 @@ def parse_requirements(config, sources):
         List of dependencies read from the config file. Includes some comments.
 
     """
-    requirements = []
     readers = {
         "install_requires": get_setup_cfg_install,
         "options.extras_require": get_setup_cfg_extras,
         "build-system": get_pyproject_toml_build,
     }
+    requirements = []
     for source in sources:
         requirements.extend(readers[source](config))
     return requirements
