@@ -92,7 +92,7 @@ See a full list of options:
 $ dependente --help
 Usage: dependente [OPTIONS]
 
-  Dependente: Extract Python package dependencies from configuration files.
+  Dependente: Inspect Python package dependencies
 
   Reads from the configuration files in the current directory and outputs to
   stdout a list of dependencies into a format accepted by pip.

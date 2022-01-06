@@ -3,6 +3,8 @@
 prune .github
 prune doc
 prune env
+exclude .*.yml
+exclude .*rc
 exclude .gitignore
 exclude Makefile
 exclude environment.yml
