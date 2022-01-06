@@ -14,7 +14,7 @@ and converting them into `requirements.txt`-type files for use with
 `pip` and `conda`.
 
 The main reason to do so is to control and customize the testing
-environment on continuous integration (CI) while avoiding repeting
+environment on continuous integration (CI) while avoiding repeating
 the list of dependencies in multiple places.
 
 ## Installing
