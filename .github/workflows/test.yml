@@ -99,7 +99,7 @@ jobs:
       - name: Install the oldest supported version of dependencies
         if: matrix.dependencies == 'oldest'
         run: |
-          dependente > requirements-oldest.txt
+          dependente --source install --oldest > requirements-oldest.txt
           python -m pip install --requirement requirements-oldest.txt
 
       - name: List installed packages
