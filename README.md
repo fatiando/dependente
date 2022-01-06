@@ -18,6 +18,9 @@ The main reason to do so is to control and customize the testing
 environment on continuous integration (CI) while avoiding repeating
 the list of dependencies in multiple places.
 
+> This project was inspired by some of the GitHub Actions configuration of the
+> [MetPy](https://github.com/Unidata/MetPy) project.
+
 ## Installing
 
 *Dependente* is available from PyPI:
