@@ -11,6 +11,7 @@ import sys
 import click
 import rich.console
 
+from .converters import pin_to_oldest
 from .parsers import (
     parse_requirements,
     parse_sources,
@@ -29,6 +30,14 @@ from .parsers import (
     "Can be any combination of 'install,extras,build'.",
 )
 @click.option(
+    "--oldest",
+    "-o",
+    default=False,
+    show_default=True,
+    is_flag=True,
+    help="If enabled, will pin dependencies to the oldest accepted version.",
+)
+@click.option(
     "--verbose/--quiet",
     "-v/-q",
     default=True,
@@ -36,7 +45,7 @@ from .parsers import (
     help="Print information during execution / Don't print",
 )
 @click.version_option()
-def main(source, verbose):
+def main(source, oldest, verbose):
     """
     Dependente: Extract Python package dependencies from configuration files.
 
@@ -84,6 +93,12 @@ def main(source, verbose):
                 style=style,
             )
             sys.exit(1)
+    if oldest:
+        console.print(
+            ":mantelpiece_clock:  Pinning dependencies to their oldest versions",
+            style=style,
+        )
+        dependencies = pin_to_oldest(dependencies)
     console.print(
         f":printer:  Printing {count(dependencies)} dependencies to the "
         "standard output stream",
