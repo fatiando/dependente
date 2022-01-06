@@ -87,7 +87,7 @@ def main(source, oldest, verbose):
         reporter.echo(":partying_face: [bold green]Done![/] :partying_face:")
         sys.exit(0)
     except Exception:
-        reporter.console.print_exception(suppress=[click, rich])
+        reporter.console.print_exception()
         reporter.error(
             "\n:fire::fire::fire: Error encountered while processing. "
             "See the message and traceback above. :fire::fire::fire:"
