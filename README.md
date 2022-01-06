@@ -4,6 +4,7 @@ Part of the [Fatiando a Terra][fatiando] project
 
 [![Latest release on PyPI](https://img.shields.io/pypi/v/dependente.svg?style=flat-square)][pypi]
 [![Latest release on conda-forge](https://img.shields.io/conda/vn/conda-forge/dependente.svg?style=flat-square)][conda-forge]
+[![Test coverage report](https://img.shields.io/codecov/c/github/fatiando/dependente/main?style=flat-square)][coverage]
 [![Compatible Python versions](https://img.shields.io/pypi/pyversions/dependente.svg?style=flat-square)][pypi]
 
 ## About
@@ -153,6 +154,7 @@ Dependente is free and open-source software distributed under the
 
 [pypi]: https://pypi.org/project/dependente/
 [conda-forge]: https://github.com/conda-forge/dependente-feedstock
+[coverage]: https://app.codecov.io/gh/fatiando/dependente
 [license]: https://github.com/fatiando/dependente/blob/main/LICENSE.txt
 [contrib]: https://github.com/fatiando/dependente/blob/main/CONTRIBUTING.md
 [coc]: https://github.com/fatiando/community/blob/main/CODE_OF_CONDUCT.md
