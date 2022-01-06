@@ -32,7 +32,7 @@ def parse_sources(source):
     for entry in sorted(source.strip().split(",")):
         if entry not in valid_sources:
             raise ValueError(
-                f"Invalid source '{entry}'. Must be one of {valid_sources}."
+                f"Invalid source '{entry}'. Must be one of {list(valid_sources.keys())}."
             )
         sources[valid_sources[entry]["file"]].append(valid_sources[entry]["option"])
     return sources
@@ -43,7 +43,10 @@ def read_setup_cfg(fname="setup.cfg"):
     Read the setup.cfg file into a dictionary.
     """
     config = configparser.ConfigParser()
-    config.read(fname)
+    # Use read_file to get a FileNotFoundError if setup.cfg is missing. Using
+    # read returns an empty config instead of raising an exception.
+    with open(fname, "rt") as config_source:
+        config.read_file(config_source)
     config_dict = {
         section: dict((key, value.strip()) for key, value in config.items(section))
         for section in config.sections()
