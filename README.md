@@ -132,6 +132,16 @@ The current implementation is a proof-of-concept and has some limitations:
 Of course, all of these could be addressed if there is enough interest.
 Issues and PRs are welcome!
 
+## Dependencies
+
+We use the following dependencies (see `setup.cfg` for specific version
+constraints):
+
+* [click](https://click.palletsprojects.com) for building the command-line
+  interface.
+* [tomli](https://github.com/hukkin/tomli) to parse the TOML configuration
+  files.
+
 ## Contacting Us
 
 Find out more about how to reach us at
