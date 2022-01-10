@@ -74,9 +74,7 @@ def main(source, oldest, verbose):
             reporter.echo(f"  - {count(dependencies_found)} dependencies found")
             dependencies.extend(dependencies_found)
         if oldest:
-            reporter.echo(
-                "Pinning dependencies to their oldest versions"
-            )
+            reporter.echo("Pinning dependencies to their oldest versions")
             dependencies = pin_to_oldest(dependencies)
         reporter.echo(
             f"Printing {count(dependencies)} dependencies to standard output",
@@ -85,13 +83,9 @@ def main(source, oldest, verbose):
             click.echo(line)
         reporter.echo("Done!")
     except Exception:
-        reporter.error(
-            "\nError encountered while processing:\n"
-        )
+        reporter.error("\nError encountered while processing:\n")
         reporter.error(traceback.format_exc())
-        reporter.error(
-            "Oh no! Something went wrong. See the messages above."
-        )
+        reporter.error("Oh no! Something went wrong. See the messages above.")
         sys.exit(1)
 
 
