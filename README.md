@@ -37,57 +37,81 @@ conda install dependente -c conda-forge
 
 ## Using
 
+> In these examples, we'll parse the dependencies from
+> [Pooch](https://github.com/fatiando/pooch).
+
 Parse the install (run-time) dependencies from `setup.cfg`:
 
 ```
 $ dependente > requirements.txt
-🚀 Extracting dependencies: install
-🔎 Parsing setup.cfg
-   - 3 dependencies found
-🖨  Printing 3 dependencies to the standard output stream
-🥳 Done! 🥳
+Extracting dependencies: install
+Parsing setup.cfg
+  - 3 dependencies found
+Printing 3 dependencies to standard output
+Done!
 
 $ cat requirements.txt
 # Install (run-time) dependencies from setup.cfg
-click>=8.0.0,<9.0.0
-rich>=9.6.0,<11.0.0
-tomli>=1.1.0,<3.0.0
+appdirs>=1.3.0
+packaging>=20.0
+requests>=2.19.0
+```
+
+Also read the build dependencies from `pyproject.toml` and extra dependencies
+from `setup.cfg`:
+
+```
+$ dependente --source install,build,extras > requirements-all.txt
+Extracting dependencies: install,build,extras
+Parsing setup.cfg
+  - 6 dependencies found
+Parsing pyproject.toml
+  - 3 dependencies found
+Printing 9 dependencies to standard output
+Done!
+
+$ cat requirements-all.txt
+# Extra (optional) dependencies from setup.cfg
+#   extra: progress
+tqdm>=4.41.0,<5.0.0
+#   extra: sftp
+paramiko>=2.7.0
+#   extra: xxhash
+xxhash>=1.4.3
+# Install (run-time) dependencies from setup.cfg
+appdirs>=1.3.0
+packaging>=20.0
+requests>=2.19.0
+# Build dependencies from pyproject.toml
+setuptools>=45
+wheel
+setuptools_scm[toml]>=6.2
 ```
 
 Pin the dependencies to their oldest supported version (useful for testing
 in CI):
 
 ```
-$ dependente --oldest > requirements-oldest.txt
-🚀 Extracting dependencies: install
-🔎 Parsing setup.cfg
-   - 3 dependencies found
-🕰  Pinning dependencies to their oldest versions
-🖨  Printing 3 dependencies to the standard output stream
-🥳 Done! 🥳
+$ dependente --source install,extras --oldest > requirements-oldest.txt
+Extracting dependencies: install,extras
+Parsing setup.cfg
+  - 6 dependencies found
+Pinning dependencies to their oldest versions
+Printing 6 dependencies to standard output
+Done!
 
 $ cat requirements-oldest.txt
+# Extra (optional) dependencies from setup.cfg
+#   extra: progress
+tqdm==4.41.0
+#   extra: sftp
+paramiko==2.7.0
+#   extra: xxhash
+xxhash==1.4.3
 # Install (run-time) dependencies from setup.cfg
-click==8.0.0
-rich==9.6.0
-tomli==1.1.0
-```
-
-Read build dependencies from `pyproject.toml`:
-
-```
-$ dependente --source build > requirements-build.txt
-🚀 Extracting dependencies: build
-🔎 Parsing pyproject.toml
-   - 3 dependencies found
-🖨  Printing 3 dependencies to the standard output stream
-🥳 Done! 🥳
-
-$ cat requirements-build.txt
-# Build dependencies from pyproject.toml
-setuptools>=45
-setuptools_scm[toml]>=6.2
-wheel
+appdirs==1.3.0
+packaging==20.0
+requests==2.19.0
 ```
 
 See a full list of options:
