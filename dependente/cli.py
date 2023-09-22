@@ -8,15 +8,14 @@ Uses click to define a CLI around the ``main`` function.
 """
 import sys
 import traceback
+from pathlib import Path
 
 import click
 
 from .converters import pin_to_oldest
 from .parsers import (
-    parse_requirements,
-    parse_sources,
-    read_pyproject_toml,
-    read_setup_cfg,
+    get_parser,
+    validate_sources,
 )
 
 
@@ -54,39 +53,46 @@ def main(source, oldest, verbose):
 
     Supported formats:
 
-    * pyproject.toml (only build-system > requires)
+    * pyproject.toml (build-system > requires, project > dependencies and
+        project.optional-dependencies)
 
     * setup.cfg (install_requires and options.extras_require)
 
     """
     reporter = Reporter(verbose)
-    readers = {"setup.cfg": read_setup_cfg, "pyproject.toml": read_pyproject_toml}
-    reporter.echo(f"Extracting dependencies: {source}")
-    try:
-        sources = parse_sources(source)
-        dependencies = []
-        for config_file in sources:
-            if not sources[config_file]:
-                continue
-            reporter.echo(f"Parsing {config_file}")
-            config = readers[config_file]()
-            dependencies_found = parse_requirements(config, sources[config_file])
-            reporter.echo(f"  - {count(dependencies_found)} dependencies found")
-            dependencies.extend(dependencies_found)
-        if oldest:
-            reporter.echo("Pinning dependencies to their oldest versions")
-            dependencies = pin_to_oldest(dependencies)
-        reporter.echo(
-            f"Printing {count(dependencies)} dependencies to standard output",
-        )
-        for line in dependencies:
-            click.echo(line)
-        reporter.echo("Done!")
-    except Exception:
-        reporter.error("\nError encountered while processing:\n")
-        reporter.error(traceback.format_exc())
-        reporter.error("Oh no! Something went wrong. See the messages above.")
-        sys.exit(1)
+    sources = source.split(",")
+    validate_sources(sources)
+    # Check which configuration files are present
+    setup_cfg, pyproject_toml = Path("setup.cfg"), Path("pyproject.toml")
+    if setup_cfg.is_file() and pyproject_toml.is_file():
+        config_files = {
+            "setup.cfg": [s for s in sources if s != "build"],
+            "pyproject.toml": ["build"] if "build" in sources else [],
+        }
+    elif not setup_cfg.is_file() and pyproject_toml.is_file():
+        config_files = {
+            "pyproject.toml": sources,
+        }
+    elif setup_cfg.is_file() and not pyproject_toml.is_file():
+        raise FileNotFoundError("Missing 'pyproject.toml' file.")
+    else:
+        raise FileNotFoundError("Missing 'pyproject.toml' and 'setup.cfg' files.")
+    # Parse dependencies
+    dependencies = []
+    for config_file, sources in config_files.items():
+        reporter.echo(f"Parsing {config_file}")
+        parser = get_parser(config_file)
+        dependencies_found = parser.parse_requirements(sources)
+        reporter.echo(f"  - {count(dependencies_found)} dependencies found")
+        dependencies.extend(dependencies_found)
+    if oldest:
+        reporter.echo("Pinning dependencies to their oldest versions")
+        dependencies = pin_to_oldest(dependencies)
+    reporter.echo(
+        f"Printing {count(dependencies)} dependencies to standard output",
+    )
+    for line in dependencies:
+        click.echo(line)
 
 
 def count(dependencies):
