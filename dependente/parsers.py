@@ -140,8 +140,6 @@ class ParserPyprojectToml:
                 self._config = tomli.load(config_source)
         return self._config
 
-        return self._config
-
     def parse_requirements(self, sources):
         """
         Parse requirements from setup.cfg config file
