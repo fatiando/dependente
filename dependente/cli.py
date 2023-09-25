@@ -62,21 +62,7 @@ def main(source, oldest, verbose):
     reporter = Reporter(verbose)
     sources = source.split(",")
     validate_sources(sources)
-    # Check which configuration files are present
-    setup_cfg, pyproject_toml = Path("setup.cfg"), Path("pyproject.toml")
-    if setup_cfg.is_file() and pyproject_toml.is_file():
-        config_files = {
-            "setup.cfg": [s for s in sources if s != "build"],
-            "pyproject.toml": ["build"] if "build" in sources else [],
-        }
-    elif not setup_cfg.is_file() and pyproject_toml.is_file():
-        config_files = {
-            "pyproject.toml": sources,
-        }
-    elif setup_cfg.is_file() and not pyproject_toml.is_file():
-        raise FileNotFoundError("Missing 'pyproject.toml' file.")
-    else:
-        raise FileNotFoundError("Missing 'pyproject.toml' and 'setup.cfg' files.")
+    config_files = find_configuration_files(sources)
     # Parse dependencies
     dependencies = []
     for config_file, sources in config_files.items():
@@ -85,14 +71,60 @@ def main(source, oldest, verbose):
         dependencies_found = parser.parse_requirements(sources)
         reporter.echo(f"  - {count(dependencies_found)} dependencies found")
         dependencies.extend(dependencies_found)
+    # Pin to oldest versions
     if oldest:
         reporter.echo("Pinning dependencies to their oldest versions")
         dependencies = pin_to_oldest(dependencies)
+    # Print gathered dependencies to stdout
     reporter.echo(
         f"Printing {count(dependencies)} dependencies to standard output",
     )
     for line in dependencies:
         click.echo(line)
+
+
+def find_configuration_files(sources):
+    """
+    Find configuration files in current directory
+
+    Return a dictionary with the names of configuration files that are present
+    in the current directory as keys. The values will be the list of sources
+    ("build", "install", "extras") that should be parsed from each of them.
+
+    If only ``pyproject.toml`` is present, all sources will be parsed from it.
+    If ``setup.cfg`` and ``pyproject.toml`` are present, then only the "build"
+    dependencies will be parsed from ``pyproject.toml``, while "install" and
+    "extras" will be obtained from ``setup.cfg``.
+
+    Parameters
+    ----------
+    sources : list
+        List of required sources. Must be a subset of {"build", "install",
+        "extras"}.
+
+    Returns
+    -------
+    dict
+
+    Raises
+    ------
+    FileNotFoundError
+        If ``setup.cfg`` and ``pyproject.toml`` are
+        missing, or if only ``setup.cfg`` is present.
+    """
+    setup_cfg, pyproject_toml = Path("setup.cfg"), Path("pyproject.toml")
+    if setup_cfg.is_file() and pyproject_toml.is_file():
+        config_files = {
+            "setup.cfg": [s for s in sources if s != "build"],
+            "pyproject.toml": ["build"] if "build" in sources else [],
+        }
+    elif not setup_cfg.is_file() and pyproject_toml.is_file():
+        config_files = {"pyproject.toml": sources}
+    elif setup_cfg.is_file() and not pyproject_toml.is_file():
+        raise FileNotFoundError("Missing 'pyproject.toml' file.")
+    else:
+        raise FileNotFoundError("Missing 'pyproject.toml' and 'setup.cfg' files.")
+    return config_files
 
 
 def count(dependencies):
