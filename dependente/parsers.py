@@ -4,8 +4,8 @@
 """
 Functions for extracting the dependency information from files.
 """
-from pathlib import Path
 import configparser
+from pathlib import Path
 
 import tomli
 

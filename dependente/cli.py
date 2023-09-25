@@ -13,10 +13,7 @@ from pathlib import Path
 import click
 
 from .converters import pin_to_oldest
-from .parsers import (
-    get_parser,
-    validate_sources,
-)
+from .parsers import get_parser, validate_sources
 
 
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
@@ -62,25 +59,32 @@ def main(source, oldest, verbose):
     reporter = Reporter(verbose)
     sources = source.split(",")
     validate_sources(sources)
-    config_files = find_configuration_files(sources)
-    # Parse dependencies
-    dependencies = []
-    for config_file, sources in config_files.items():
-        reporter.echo(f"Parsing {config_file}")
-        parser = get_parser(config_file)
-        dependencies_found = parser.parse_requirements(sources)
-        reporter.echo(f"  - {count(dependencies_found)} dependencies found")
-        dependencies.extend(dependencies_found)
-    # Pin to oldest versions
-    if oldest:
-        reporter.echo("Pinning dependencies to their oldest versions")
-        dependencies = pin_to_oldest(dependencies)
-    # Print gathered dependencies to stdout
-    reporter.echo(
-        f"Printing {count(dependencies)} dependencies to standard output",
-    )
-    for line in dependencies:
-        click.echo(line)
+    try:
+        config_files = find_configuration_files(sources)
+        # Parse dependencies
+        dependencies = []
+        for config_file, sources in config_files.items():
+            reporter.echo(f"Parsing {config_file}")
+            parser = get_parser(config_file)
+            dependencies_found = parser.parse_requirements(sources)
+            reporter.echo(f"  - {count(dependencies_found)} dependencies found")
+            dependencies.extend(dependencies_found)
+        # Pin to oldest versions
+        if oldest:
+            reporter.echo("Pinning dependencies to their oldest versions")
+            dependencies = pin_to_oldest(dependencies)
+        # Print gathered dependencies to stdout
+        reporter.echo(
+            f"Printing {count(dependencies)} dependencies to standard output",
+        )
+        for line in dependencies:
+            click.echo(line)
+        reporter.echo("Done!")
+    except Exception:
+        reporter.error("\nError encountered while processing:\n")
+        reporter.error(traceback.format_exc())
+        reporter.error("Oh no! Something went wrong. See the messages above.")
+        sys.exit(1)
 
 
 def find_configuration_files(sources):
