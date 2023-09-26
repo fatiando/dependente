@@ -60,7 +60,7 @@ def main(source, oldest, verbose):
     sources = source.split(",")
     validate_sources(sources)
     try:
-        config_files = find_configuration_files(sources)
+        config_files = get_sources_and_config_files(sources)
         # Parse dependencies
         dependencies = []
         for config_file, sources in config_files.items():
@@ -87,47 +87,51 @@ def main(source, oldest, verbose):
         sys.exit(1)
 
 
-def find_configuration_files(sources):
+def get_sources_and_config_files(sources):
     """
-    Find configuration files in current directory
+    Get configuration files in working directory and corresponding sources
 
-    Return a dictionary with the names of configuration files that are present
-    in the current directory as keys. The values will be the list of sources
-    ("build", "install", "extras") that should be parsed from each of them.
-
-    If only ``pyproject.toml`` is present, all sources will be parsed from it.
-    If ``setup.cfg`` and ``pyproject.toml`` are present, then only the "build"
-    dependencies will be parsed from ``pyproject.toml``, while "install" and
-    "extras" will be obtained from ``setup.cfg``.
+    Find configuration files in current directory and sort out which sources
+    should be parsed from which config file.
 
     Parameters
     ----------
-    sources : list
-        List of required sources. Must be a subset of {"build", "install",
-        "extras"}.
+    sources : list of str
+        List containing a subset of valid sources ("build", "install",
+        "extras").
 
     Returns
     -------
-    dict
+    config_files : dict
+        Dictionary with config files as keys. Their values are a list of
+        sources that should be parsed from each one of them.
 
     Raises
     ------
     FileNotFoundError
-        If ``setup.cfg`` and ``pyproject.toml`` are
-        missing, or if only ``setup.cfg`` is present.
+        If both ``setup.cfg`` and ``pyproject.toml`` are missing in the current
+        directory.
+        If "build" is in ``sources``, but ``pyproject.toml`` is not present in
+        the current directory.
     """
-    setup_cfg, pyproject_toml = Path("setup.cfg"), Path("pyproject.toml")
-    if setup_cfg.is_file() and pyproject_toml.is_file():
-        config_files = {
-            "setup.cfg": [s for s in sources if s != "build"],
-            "pyproject.toml": ["build"] if "build" in sources else [],
-        }
-    elif not setup_cfg.is_file() and pyproject_toml.is_file():
-        config_files = {"pyproject.toml": sources}
-    elif setup_cfg.is_file() and not pyproject_toml.is_file():
-        raise FileNotFoundError("Missing 'pyproject.toml' file.")
-    else:
+    # Get configuration files in working directory
+    fnames = ("pyproject.toml", "setup.cfg")
+    config_fnames = [fname for fname in fnames if Path(fname).is_file()]
+    if not config_fnames:
         raise FileNotFoundError("Missing 'pyproject.toml' and 'setup.cfg' files.")
+    # Sort out sources
+    if "build" in sources and "pyproject.toml" not in config_fnames:
+        raise FileNotFoundError(
+            "Missing 'pyproject.toml' file while asking for 'build' sources. "
+            "The 'build' sources can only be parsed from a 'pyproject.toml' file."
+        )
+    if "setup.cfg" in config_fnames:
+        config_files = {
+            "pyproject.toml": ["build"] if "build" in sources else [],
+            "setup.cfg": [s for s in sources if s != "build"],
+        }
+    else:
+        config_files = {"pyproject.toml": sources}
     config_files = {key: value for key, value in config_files.items() if value}
     return config_files
 
