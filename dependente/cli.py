@@ -128,6 +128,7 @@ def find_configuration_files(sources):
         raise FileNotFoundError("Missing 'pyproject.toml' file.")
     else:
         raise FileNotFoundError("Missing 'pyproject.toml' and 'setup.cfg' files.")
+    config_files = {key: value for key, value in config_files.items() if value}
     return config_files
 
 
