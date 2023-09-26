@@ -16,6 +16,12 @@ def setup_cfg():
 
 
 @pytest.fixture()
+def pyproject_toml():
+    "The text contents of the test file."
+    return str(Path(__file__).parent / "data" / "sample_pyproject.toml")
+
+
+@pytest.fixture()
 def setup_cfg_config():
     "The parsed contents of the file."
     contents = {
@@ -31,32 +37,6 @@ def setup_cfg_config():
 
 
 @pytest.fixture()
-def setup_cfg_install():
-    "The install requirements"
-    contents = [
-        "click>=8.0.0,<9.0.0",
-        "rich>=9.6.0,<11.0.0",
-        "tomli>=1.0.0,<3.0.0",
-    ]
-    return contents
-
-
-@pytest.fixture()
-def setup_cfg_extras():
-    "The extra requirements"
-    contents = [
-        "nbformat>=5.1",
-    ]
-    return contents
-
-
-@pytest.fixture()
-def pyproject_toml():
-    "The text contents of the test file."
-    return str(Path(__file__).parent / "data" / "sample_pyproject.toml")
-
-
-@pytest.fixture()
 def pyproject_toml_config():
     "The parsed contents of the file."
     contents = {
@@ -67,12 +47,44 @@ def pyproject_toml_config():
                 "wheel",
             ]
         },
+        "project": {
+            "dependencies": [
+                "click >= 8.0.0, < 9.0.0",
+                "rich >= 9.6.0, < 11.0.0",
+                "tomli >= 1.0.0, < 3.0.0",
+            ],
+            "optional-dependencies": {
+                "jupyter": [
+                    "nbformat >= 5.1",
+                ],
+            },
+        },
     }
     return contents
 
 
 @pytest.fixture()
-def pyproject_toml_build():
+def install_dependencies():
+    "The install requirements"
+    contents = [
+        "click>=8.0.0,<9.0.0",
+        "rich>=9.6.0,<11.0.0",
+        "tomli>=1.0.0,<3.0.0",
+    ]
+    return contents
+
+
+@pytest.fixture()
+def extras_dependencies():
+    "The extras requirements"
+    contents = [
+        "nbformat>=5.1",
+    ]
+    return contents
+
+
+@pytest.fixture()
+def build_dependencies():
     "The build requirements"
     contents = [
         "setuptools>=45",
