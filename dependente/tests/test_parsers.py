@@ -52,12 +52,18 @@ class TestValidateSources:
         """
         validate_sources(sources)
 
-    @pytest.mark.parametrize("sources", (["invalid"], ["build", "extras", "invalid"]))
+    @pytest.mark.parametrize(
+        "sources", (["invalid"], ["build", "extras", "invalid"], [])
+    )
     def test_invalid_sources(self, sources):
         """
         Test if the function raises errors after invalid sources
         """
-        with pytest.raises(ValueError, match="Invalid sources"):
+        if sources:
+            msg = "Invalid sources"
+        else:
+            msg = "No sources were provided"
+        with pytest.raises(ValueError, match=msg):
             validate_sources(sources)
 
     def test_repeated_sources(self):

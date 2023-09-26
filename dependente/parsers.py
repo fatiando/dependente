@@ -38,6 +38,11 @@ def validate_sources(sources):
     sources : list
         List of sources. Valid sources are "build", "install" and "extras".
     """
+    if not sources:
+        raise ValueError(
+            "No sources were provided. "
+            "Please choose a subset of 'build', 'install' and 'extras'."
+        )
     valid_sources = set(["build", "install", "extras"])
     if not set(sources).issubset(valid_sources):
         invalid = valid_sources - set(sources)
