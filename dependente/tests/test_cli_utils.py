@@ -3,6 +3,7 @@ Test utility functions from cli.py
 """
 import os
 import shutil
+
 import pytest
 
 from ..cli import get_sources_and_config_files
@@ -63,7 +64,8 @@ class TestGetSourcesAndConfigFiles:
     )
     def test_setup_with_build(self, sources, setup_cfg, tmp_path):
         """
-        Test if error is raised when only setup.cfg exists and "build" is in sources
+        Test if error is raised when only setup.cfg exists and "build" is in
+        sources.
         """
         # Copy sample file to tmp_path and cd to tmp_path
         shutil.copy(src=setup_cfg, dst=tmp_path / "setup.cfg")
@@ -109,7 +111,8 @@ class TestGetSourcesAndConfigFiles:
         self, sources, setup_cfg, pyproject_toml, tmp_path
     ):
         """
-        Test when setup.cfg and pyproject.toml exist and build is not in sources
+        Test when setup.cfg and pyproject.toml exist and build is not in
+        sources.
         """
         # Copy sample files to tmp_path and cd to tmp_path
         shutil.copy(src=setup_cfg, dst=tmp_path / "setup.cfg")
