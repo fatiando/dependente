@@ -11,13 +11,13 @@ import pytest
 
 @pytest.fixture()
 def setup_cfg():
-    "The text contents of the test file."
+    "The path to the sample setup.cfg test file."
     return str(Path(__file__).parent / "data" / "sample_setup.cfg")
 
 
 @pytest.fixture()
 def pyproject_toml():
-    "The text contents of the test file."
+    "The path to the sample pyproject.toml test file."
     return str(Path(__file__).parent / "data" / "sample_pyproject.toml")
 
 
