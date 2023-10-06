@@ -6,10 +6,7 @@
 
 ### What's Changed
 
-Refactor parsers and support pyproject-only projects ([#8](https://github.com/fatiando/dependente/pull/8))
-
-Refactor the parsers functions into classes, simplify the logic of parsers and
-add support for projects that only have a `pyproject.toml` file.
+* Refactor parsers and support pyproject-only projects ([#8](https://github.com/fatiando/dependente/pull/8))
 
 ## Version 0.2.0
 
