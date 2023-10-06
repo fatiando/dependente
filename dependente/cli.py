@@ -8,16 +8,12 @@ Uses click to define a CLI around the ``main`` function.
 """
 import sys
 import traceback
+from pathlib import Path
 
 import click
 
 from .converters import pin_to_oldest
-from .parsers import (
-    parse_requirements,
-    parse_sources,
-    read_pyproject_toml,
-    read_setup_cfg,
-)
+from .parsers import get_parser, validate_sources
 
 
 @click.command(context_settings={"help_option_names": ["-h", "--help"]})
@@ -54,28 +50,30 @@ def main(source, oldest, verbose):
 
     Supported formats:
 
-    * pyproject.toml (only build-system > requires)
+    * pyproject.toml (build-system > requires, project > dependencies and
+        project.optional-dependencies)
 
     * setup.cfg (install_requires and options.extras_require)
 
     """
     reporter = Reporter(verbose)
-    readers = {"setup.cfg": read_setup_cfg, "pyproject.toml": read_pyproject_toml}
-    reporter.echo(f"Extracting dependencies: {source}")
+    sources = source.split(",")
+    validate_sources(sources)
     try:
-        sources = parse_sources(source)
+        config_files = get_sources_and_config_files(sources)
+        # Parse dependencies
         dependencies = []
-        for config_file in sources:
-            if not sources[config_file]:
-                continue
+        for config_file, sources in config_files.items():
             reporter.echo(f"Parsing {config_file}")
-            config = readers[config_file]()
-            dependencies_found = parse_requirements(config, sources[config_file])
+            parser = get_parser(config_file)
+            dependencies_found = parser.parse_requirements(sources)
             reporter.echo(f"  - {count(dependencies_found)} dependencies found")
             dependencies.extend(dependencies_found)
+        # Pin to oldest versions
         if oldest:
             reporter.echo("Pinning dependencies to their oldest versions")
             dependencies = pin_to_oldest(dependencies)
+        # Print gathered dependencies to stdout
         reporter.echo(
             f"Printing {count(dependencies)} dependencies to standard output",
         )
@@ -87,6 +85,55 @@ def main(source, oldest, verbose):
         reporter.error(traceback.format_exc())
         reporter.error("Oh no! Something went wrong. See the messages above.")
         sys.exit(1)
+
+
+def get_sources_and_config_files(sources):
+    """
+    Get configuration files in working directory and corresponding sources
+
+    Find configuration files in current directory and sort out which sources
+    should be parsed from which config file.
+
+    Parameters
+    ----------
+    sources : list of str
+        List containing a subset of valid sources ("build", "install",
+        "extras").
+
+    Returns
+    -------
+    config_files : dict
+        Dictionary with config files as keys. Their values are a list of
+        sources that should be parsed from each one of them.
+
+    Raises
+    ------
+    FileNotFoundError
+        If both ``setup.cfg`` and ``pyproject.toml`` are missing in the current
+        directory.
+        If "build" is in ``sources``, but ``pyproject.toml`` is not present in
+        the current directory.
+    """
+    # Get configuration files in working directory
+    fnames = ("pyproject.toml", "setup.cfg")
+    config_fnames = [fname for fname in fnames if Path(fname).is_file()]
+    if not config_fnames:
+        raise FileNotFoundError("Missing 'pyproject.toml' and 'setup.cfg' files.")
+    # Sort out sources
+    if "build" in sources and "pyproject.toml" not in config_fnames:
+        raise FileNotFoundError(
+            "Missing 'pyproject.toml' file while asking for 'build' sources. "
+            "The 'build' sources can only be parsed from a 'pyproject.toml' file."
+        )
+    if "setup.cfg" in config_fnames:
+        config_files = {
+            "pyproject.toml": ["build"] if "build" in sources else [],
+            "setup.cfg": [s for s in sources if s != "build"],
+        }
+    else:
+        config_files = {"pyproject.toml": sources}
+    config_files = {key: value for key, value in config_files.items() if value}
+    return config_files
 
 
 def count(dependencies):
