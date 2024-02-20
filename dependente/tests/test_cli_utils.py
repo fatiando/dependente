@@ -1,6 +1,7 @@
 """
 Test utility functions from cli.py
 """
+
 import os
 import shutil
 
