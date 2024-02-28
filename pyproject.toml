@@ -1,5 +1,46 @@
-# Specify that we use setuptools and setuptools_scm (to generate the version
-# string). Actual configuration is in setup.py and setup.cfg.
+[project]
+name = "dependente"
+description = "Inspect Python package dependencies"
+dynamic = ["version"]
+authors = [
+  {name="The Dependente Developers", email="fatiandoaterra@protonmail.com"},
+]
+maintainers = [
+  {name = "Leonardo Uieda", email = "leo@uieda.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+keywords = ["dependencies", "pyproject", "setuptools"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "click>=8.0.0,<9.0.0",
+    "tomli>=1.1.0,<3.0.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/fatiando/dependente"
+"Changelog" = "https://github.com/fatiando/dependente/blob/main/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/fatiando/dependente/issues"
+"Source Code" = "https://github.com/fatiando/dependente"
+
+[project.scripts]
+dependente = "dependente.cli:main"
+
 [build-system]
 requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
 build-backend = "setuptools.build_meta"
