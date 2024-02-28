@@ -4,7 +4,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python==3.10
+  - python==3.12
   - pip
   - make
   # Run-time
@@ -26,6 +26,5 @@ dependencies:
   - flake8-mutable
   - flake8-rst-docstrings
   - flake8-simplify
+  - flake8-unused-arguments
   - pep8-naming
-  - pip:
-    - flake8-unused-arguments
