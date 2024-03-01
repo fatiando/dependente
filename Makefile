@@ -31,6 +31,7 @@ test:
 format:
 	isort $(CHECK_STYLE)
 	black $(CHECK_STYLE)
+	burocrata --extension=py $(CHECK_STYLE)
 
 check: check-format check-style
 
@@ -40,6 +41,7 @@ check-style:
 check-format:
 	isort --check $(CHECK_STYLE)
 	black --check $(CHECK_STYLE)
+	burocrata --check --extension=py $(CHECK_STYLE)
 
 clean:
 	find . -name "*.pyc" -exec rm -v {} \;

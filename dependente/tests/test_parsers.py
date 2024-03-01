@@ -1,11 +1,13 @@
-# Copyright (c) 2021 Leonardo Uieda.
+# Copyright (c) 2021 The Dependente Developers.
 # Distributed under the terms of the MIT License.
 # SPDX-License-Identifier: MIT
+# This code is part of the Fatiando a Terra project (https://www.fatiando.org).
 """
 Test the functions that extract content from configuration files.
 
 The fixtures (arguments to the test functions) are defined in conftest.py
 """
+
 import pytest
 
 from ..parsers import ParserPyprojectToml, ParserSetupCfg, get_parser, validate_sources
