@@ -1,9 +1,11 @@
-# Copyright (c) 2021 Leonardo Uieda.
+# Copyright (c) 2021 The Dependente Developers.
 # Distributed under the terms of the MIT License.
 # SPDX-License-Identifier: MIT
+# This code is part of the Fatiando a Terra project (https://www.fatiando.org).
 """
 Functions for extracting the dependency information from files.
 """
+
 import configparser
 from pathlib import Path
 

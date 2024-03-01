@@ -1,11 +1,13 @@
-# Copyright (c) 2021 Leonardo Uieda.
+# Copyright (c) 2021 The Dependente Developers.
 # Distributed under the terms of the MIT License.
 # SPDX-License-Identifier: MIT
+# This code is part of the Fatiando a Terra project (https://www.fatiando.org).
 """
 Defines the command line interface.
 
 Uses click to define a CLI around the ``main`` function.
 """
+
 import sys
 import traceback
 from pathlib import Path
