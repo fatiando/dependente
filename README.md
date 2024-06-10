@@ -150,8 +150,7 @@ The current implementation is a proof-of-concept and has some limitations:
 * Input files must be in the current working directory.
 * Reads all extra dependencies simultaneously (can't separate between different
   `option.extras_requires` fields).
-* Only supports reading from `setup.cfg` and `pyproject.toml` (build
-  dependencies only).
+* Only supports reading from `setup.cfg` and `pyproject.toml`.
 
 Of course, all of these could be addressed if there is enough interest.
 Issues and PRs are welcome!
